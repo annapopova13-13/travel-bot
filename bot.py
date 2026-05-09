@@ -4,10 +4,10 @@ import pandas as pd
 from math import radians, sin, cos, sqrt, atan2
 import json
 
-# ===== ВСТАВЬТЕ СВОИ ДАННЫЕ ЗДЕСЬ =====
+# ===== ВАШИ ДАННЫЕ =====
 VK_TOKEN = "vk1.a.9Rv0cCx09qyrQ1Sw588RRWlyXirDu3nACgdc8FK4giUk5gLSgnH3CFziw2psjosspDpuyvAcF_74SG2GyCZ1duXtiNmCu9_5tGgoYRhvXV9b7XI1CwsoVlV3k8SngylDvILnX4fmj_EiCNF8FGl4jrR-PSqIgyxkHqdmF5wsldNQGMyO3SxeHZEg9YqILq3kk-lW2GzZbxllEtQm4M2OKg"
-GROUP_ID = 238525421 
-# =====================================
+GROUP_ID = 238525421
+# =====================
 
 CSV_FILE = "places.csv"
 
@@ -72,6 +72,7 @@ def main():
     longpoll = VkBotLongPoll(vk_session, GROUP_ID)
     print("🤖 Бот успешно запущен и ждет сообщений!")
     user_choice = {}
+    
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
             try:
@@ -79,26 +80,56 @@ def main():
                 user_id = msg['from_id']
                 text = msg['text'].lower().strip() if msg['text'] else ""
                 peer_id = msg['peer_id']
-                if text in ["start", "начать", "привет", "/start"]:
-                    vk.messages.send(peer_id=peer_id, message="Привет! Я твой гид по Санкт-Петербургу!\n\nВыбери, что тебя интересует:", random_id=0, keyboard=get_main_keyboard())
-                elif text == "❓ помощь" or text == "помощь":
-                    help_text = "📍 Отправь геолокацию после выбора категории! Я найду кафе, рестораны, музеи рядом."
-                    vk.messages.send(peer_id=peer_id, message=help_text, random_id=0, keyboard=get_main_keyboard())
-                elif text == "🍔 хочу поесть":
+                
+                print(f"Получено сообщение: {text}")
+                
+                if text in ["начать", "старт", "привет", "start", "/start"]:
+                    vk.messages.send(
+                        peer_id=peer_id,
+                        message="Привет! Я твой гид по Санкт-Петербургу!\n\nВыбери, что тебя интересует:",
+                        random_id=0,
+                        keyboard=get_main_keyboard()
+                    )
+                elif text in ["помощь", "❓ помощь", "help"]:
+                    vk.messages.send(
+                        peer_id=peer_id,
+                        message="📍 Отправь геолокацию после выбора категории!\n\nЯ найду: кафе, рестораны, музеи, парки",
+                        random_id=0,
+                        keyboard=get_main_keyboard()
+                    )
+                elif "поесть" in text:
                     user_choice[user_id] = 'еда'
-                    vk.messages.send(peer_id=peer_id, message="Отлично! Поделись геолокацией, найду кафе и рестораны 🍕", random_id=0, keyboard=get_location_keyboard())
-                elif text == "🏛️ хочу в музей":
+                    vk.messages.send(
+                        peer_id=peer_id,
+                        message="Отлично! Поделись геолокацией, найду кафе и рестораны 🍕",
+                        random_id=0,
+                        keyboard=get_location_keyboard()
+                    )
+                elif "музей" in text:
                     user_choice[user_id] = 'культура'
-                    vk.messages.send(peer_id=peer_id, message="Отправь геолокацию, покажу музеи и достопримечательности 🏛️", random_id=0, keyboard=get_location_keyboard())
-                geo_found = False
+                    vk.messages.send(
+                        peer_id=peer_id,
+                        message="Отправь геолокацию, покажу музеи и достопримечательности 🏛️",
+                        random_id=0,
+                        keyboard=get_location_keyboard()
+                    )
+                else:
+                    vk.messages.send(
+                        peer_id=peer_id,
+                        message="Я тебя не понял 😊\n\nНапиши 'Начать' или выбери действие из кнопок",
+                        random_id=0,
+                        keyboard=get_main_keyboard()
+                    )
+                
+                # Обработка геолокации
                 if 'attachments' in msg:
                     for attachment in msg['attachments']:
                         if attachment['type'] == 'geo':
                             user_lat = attachment['geo']['coordinates']['lat']
                             user_lon = attachment['geo']['coordinates']['long']
-                            geo_found = True
                             search_type = user_choice.get(user_id, 'еда')
-                            nearest = find_nearest_places(float(user_lat), float(user_lon), search_type, 5)
+                            nearest = find_nearest_places(user_lat, user_lon, search_type, 5)
+                            
                             if not nearest:
                                 vk.messages.send(peer_id=peer_id, message="Рядом ничего не найдено. Попробуйте в центре города 🗺️", random_id=0, keyboard=get_main_keyboard())
                             else:
@@ -112,14 +143,9 @@ def main():
                                     result_message += f"📏 {dist:.1f} км\n\n"
                                 vk.messages.send(peer_id=peer_id, message=result_message, random_id=0, keyboard=get_main_keyboard())
                             break
-                if not geo_found and text and text not in ["start", "начать", "привет", "/start", "🍔 хочу поесть", "🏛️ хочу в музей", "❓ помощь", "помощь"]:
-                    vk.messages.send(peer_id=peer_id, message="Используй кнопки меню или напиши 'Помощь' 😊", random_id=0, keyboard=get_main_keyboard())
+                            
             except Exception as e:
                 print(f"Ошибка: {e}")
-                try:
-                    vk.messages.send(peer_id=peer_id, message="Ошибка. Напиши 'Начать' заново", random_id=0)
-                except:
-                    pass
 
 if __name__ == "__main__":
     main()
