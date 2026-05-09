@@ -3,7 +3,6 @@ import sys
 import time
 
 # ------------------ УСТАНОВКА БИБЛИОТЕК ------------------
-# Эта часть устанавливает нужные библиотеки автоматически
 libraries = ["vk-api", "pandas"]
 for lib in libraries:
     try:
@@ -24,7 +23,7 @@ VK_TOKEN = "vk1.a.9Rv0cCx09qyrQ1Sw588RRWlyXirDu3nACgdc8FK4giUk5gLSgnH3CFziw2psjo
 GROUP_ID = 238525421
 # =====================
 
-CSV_FILE = "places.csv"
+CSV_FILE = "Shablon_tablitsy.csv"
 
 # Загружаем данные
 try:
@@ -136,7 +135,6 @@ def main():
                         keyboard=get_main_keyboard()
                     )
                 
-                # Обработка геолокации
                 if 'attachments' in msg:
                     for attachment in msg['attachments']:
                         if attachment['type'] == 'geo':
@@ -146,7 +144,7 @@ def main():
                             nearest = find_nearest_places(user_lat, user_lon, search_type, 5)
                             
                             if not nearest:
-                                vk.messages.send(peer_id=peer_id, message="Рядом ничего не найдено. Попробуйте в центре города 🗺️", random_id=0, keyboard=get_main_keyboard())
+                                vk.messages.send(peer_id=peer_id, message="Рядом ничего не найдено 🗺️", random_id=0, keyboard=get_main_keyboard())
                             else:
                                 type_name = "заведений" if search_type == "еда" else "музеев"
                                 result_message = f"📍 Нашел {len(nearest)} {type_name} рядом:\n\n"
