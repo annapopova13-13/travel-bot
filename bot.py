@@ -1,3 +1,18 @@
+import subprocess
+import sys
+import time
+
+# ------------------ УСТАНОВКА БИБЛИОТЕК ------------------
+# Эта часть устанавливает нужные библиотеки автоматически
+libraries = ["vk-api", "pandas"]
+for lib in libraries:
+    try:
+        __import__(lib.replace("-", "_"))
+    except ImportError:
+        print(f"Устанавливаю {lib}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", lib])
+# ---------------------------------------------------------
+
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import pandas as pd
