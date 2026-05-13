@@ -1,6 +1,6 @@
 import subprocess
 import sys
-import time
+import os
 
 # ------------------ УСТАНОВКА БИБЛИОТЕК ------------------
 libraries = ["vk-api", "pandas"]
@@ -18,10 +18,14 @@ import pandas as pd
 from math import radians, sin, cos, sqrt, atan2
 import json
 
-# ===== ВАШИ ДАННЫЕ =====
-VK_TOKEN = "vk1.a.9Rv0cCx09qyrQ1Sw588RRWlyXirDu3nACgdc8FK4giUk5gLSgnH3CFziw2psjosspDpuyvAcF_74SG2GyCZ1duXtiNmCu9_5tGgoYRhvXV9b7XI1CwsoVlV3k8SngylDvILnX4fmj_EiCNF8FGl4jrR-PSqIgyxkHqdmF5wsldNQGMyO3SxeHZEg9YqILq3kk-lW2GzZbxllEtQm4M2OKg"
-GROUP_ID = 238525421
-# =====================
+# ===== БЕЗОПАСНО: Токен и ID из переменных окружения =====
+VK_TOKEN = os.environ.get("VK_TOKEN")
+GROUP_ID = int(os.environ.get("VK_GROUP_ID"))
+
+if not VK_TOKEN or not GROUP_ID:
+    print("❌ ОШИБКА: Задайте переменные окружения VK_TOKEN и VK_GROUP_ID!")
+    exit()
+# =========================================================
 
 CSV_FILE = "Shablon_tablitsy.csv"
 
@@ -43,6 +47,9 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     return R * c
 
 def find_nearest_places(user_lat, user_lon, place_type, n=5):
+    if 'Тип' not in df.columns:
+        print("❌ В файле нет столбца 'Тип'")
+        return []
     filtered_df = df[df['Тип'].str.lower() == place_type.lower()]
     if filtered_df.empty:
         return []
