@@ -29,9 +29,9 @@ if not VK_TOKEN or not GROUP_ID:
 
 CSV_FILE = "Shablon_tablitsy.csv"
 
-# Загружаем данные
+# Загружаем данные (on_bad_lines='skip' пропускает кривые строки)
 try:
-    df = pd.read_csv(CSV_FILE, encoding='utf-8')
+    df = pd.read_csv(CSV_FILE, encoding='utf-8', on_bad_lines='skip')
     print(f"✅ База загружена! Найдено мест: {len(df)}")
 except Exception as e:
     print(f"❌ Ошибка загрузки базы: {e}")
