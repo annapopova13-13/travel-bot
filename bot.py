@@ -90,7 +90,7 @@ def get_location_keyboard():
 def main():
     vk_session = vk_api.VkApi(token=VK_TOKEN)
     vk = vk_session.get_api()
-    longpoll = VkBotLongPoll(vk_session, GROUP_ID)
+    longpoll = VkBotLongPoll(vk_session, GROUP_ID, wait=25)
     print("🤖 Бот успешно запущен и ждет сообщений!")
     user_choice = {}
     
